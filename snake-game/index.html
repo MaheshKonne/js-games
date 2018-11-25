@@ -1,0 +1,190 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <canvas height="500" width="500" style="border: 2px solid black" id="ctx"></canvas>
+        <script>
+            const canvas = document.getElementById("ctx");
+            const ctx = canvas.getContext("2d");
+            var snakeBodyList, foodList = [], direction, eaten = true, score = 0;
+            const snakeBody = {
+                width: 20,
+                height: 20,
+                color: 'green'
+            }
+            const food = {
+                width: 20,
+                height: 20,
+                color: 'orange'
+            };
+
+            const scoreObj = {
+                x: 420,
+                y: 25,
+                color: '#fff'
+            }
+
+            ctx.font = "20px Calibri";
+            ctx.fillText("Score: 0", 420, 25);
+
+            updateScore = () => {
+                ctx.save();
+                score++;
+                ctx.fillStyle = scoreObj.color;
+                ctx.fillText(`Score: ${score}`, scoreObj.x, scoreObj.y);
+                ctx.restore();
+            }
+            
+            drawSnake = (body, i) => {
+                ctx.save();
+                if(i === 0) {
+                    ctx.fillStyle = "red";
+                } else {
+                    ctx.fillStyle = snakeBody.color;
+                }
+                ctx.fillRect(body.x, body.y, snakeBody.width, snakeBody.height);
+                ctx.restore();
+            };
+
+            /*
+             * 0 - Left
+             * 1 - Top
+             * 2 - Right
+             * 3 - Bottom
+             */
+            updatesnakeBodyList = () => {
+                for(let i=snakeBodyList.length-1; i>=0; i--){
+                    if(direction === 0) {
+                        if (i === 0) {
+                            snakeBodyList[i].x -= 5; 
+                        } else {
+                            snakeBodyList[i].x = snakeBodyList[i-1].x;
+                            snakeBodyList[i].y = snakeBodyList[i-1].y; 
+                        }
+                    } else if(direction === 1) {
+                         if (i === 0) {
+                            snakeBodyList[i].y -= 5; 
+                        } else {
+                            snakeBodyList[i].x = snakeBodyList[i-1].x;
+                            snakeBodyList[i].y = snakeBodyList[i-1].y; 
+                        }
+                       
+                    } else if(direction === 2) {
+                         if (i === 0) {
+                            snakeBodyList[i].x += 5; 
+                        } else {
+                            snakeBodyList[i].x = snakeBodyList[i-1].x;
+                            snakeBodyList[i].y = snakeBodyList[i-1].y; 
+                        }
+                       
+                    } else if(direction === 3) {
+                         if (i === 0) {
+                            snakeBodyList[i].y += 5; 
+                        } else {
+                            snakeBodyList[i].x = snakeBodyList[i-1].x;
+                            snakeBodyList[i].y = snakeBodyList[i-1].y; 
+                        }
+                       
+                    } 
+                }
+            }
+
+            checkSnakePosition = () => {
+                if(snakeBodyList[0].x > 500) {
+                    snakeBodyList[0].x = 0;
+                } else if (snakeBodyList[0].x < 0) {
+                    snakeBodyList[0].x = 500;
+                }
+
+                if (snakeBodyList[0].y > 500) {
+                    snakeBodyList[0].y = 0;
+                } else if (snakeBodyList[0].y < 0) {
+                    snakeBodyList[0].y = 500;
+                }
+            }
+
+            testCollision = (sb, fd) => {
+               return ((sb.x <= fd.x + food.width) &&
+                       (sb.x + snakeBody.width >= fd.x) &&
+                       (sb.y <= fd.y + food.height) &&
+                       (sb.y + snakeBody.height >= fd.y)); 
+            }
+
+            checkGameOver = () => {
+                // if (snakeBodyList[0].) {
+                    
+                // }
+            }
+            
+            updateSnakePosition = () => {
+                ctx.fillRect(0,0,500, 500);
+                while (eaten) {
+                    let food_x = Math.random()*485 + 5;
+                    let food_y = Math.random()*485 + 5;
+                    //ctx.save();
+                    //ctx.fillStyle = food.color;
+                    foodList[0] = {x:food_x, y:food_y};
+                    //ctx.restore();
+                    eaten = false;
+                }
+                foodList.forEach(fd => {
+                    ctx.save();
+                    ctx.fillStyle = food.color;
+                    ctx.fillRect(fd.x, fd.y, food.width, food.height);
+                    ctx.restore();
+                })
+                snakeBodyList.forEach(drawSnake);
+
+                if (testCollision(snakeBodyList[0], foodList[0])) {
+                    updateScore();
+                    foodList = [];
+                    eaten = true;
+                    var new_X, new_Y;
+                    if (direction === 0) {
+                        new_X = snakeBodyList[0].x - 10;
+                        new_Y = snakeBodyList[0].y;
+                    } else if (direction === 1) {
+                        new_X = snakeBodyList[0].x;
+                        new_Y = snakeBodyList[0].y - 10;
+                    } else if (direction === 2) {
+                        new_X = snakeBodyList[0].x + 10;
+                        new_Y = snakeBodyList[0].y;
+                    } else if (direction === 3) {
+                        new_X = snakeBodyList[0].x;
+                        new_Y = snakeBodyList[0].y + 10;
+                    }
+                    snakeBodyList.unshift({x: new_X, y: new_Y});
+                }
+
+                checkSnakePosition();
+                updatesnakeBodyList();
+            }
+
+            startGame = () => {
+                snakeBodyList = [{
+                    x: 300,
+                    y: 200
+                }, {
+                    x: 290,
+                    y: 200
+                }, {
+                    x: 280,
+                    y: 200
+                }];
+                setInterval(updateSnakePosition, 25);
+            };
+            
+            document.onkeydown = e => {
+                if(e.keyCode >= 37 && e.keyCode <= 40) {
+                    direction = e.keyCode - 37;
+                }
+            }
+
+            // Starts the game
+            canvas.onmouseup = () => {
+                startGame();
+            }
+        </script>
+    </body>
+</html>
